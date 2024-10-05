@@ -1,0 +1,100 @@
+---
+- name: Setup Apache Web Server
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  tasks:
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start httpd service
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Create a sample index.html
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Flower Shop</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      background-color: #f0f0f0;
+                      color: #333;
+                      text-align: center;
+                      padding: 50px;
+                  }
+                  h1 {
+                      color: #28a745; /* لون أخضر */
+                  }
+                  .container {
+                      max-width: 800px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      background: white;
+                      border-radius: 8px;
+                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                  }
+                  .product {
+                      margin: 20px 0;
+                      padding: 20px;
+                      border: 1px solid #ccc;
+                      border-radius: 5px;
+                  }
+                  img {
+                      max-width: 100%;
+                      height: auto;
+                  }
+                  .price {
+                      color: #e74c3c; /* لون أحمر */
+                      font-size: 1.5em;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Welcome to Our Flower Shop</h1>
+                  <p>Explore our beautiful collection of flowers.</p>
+                  
+                  <div class="product">
+                      <img src="https://images.unsplash.com/photo-1514516871325-68e2b8f3b760" alt="Flower Item 1">
+                      <h2>Roses</h2>
+                      <p class="price">$30</p>
+                  </div>
+
+                  <div class="product">
+                      <img src="https://images.unsplash.com/photo-1521207658294-3e4e9e88e96b" alt="Flower Item 2">
+                      <h2>Tulips</h2>
+                      <p class="price">$25</p>
+                  </div>
+
+                  <div class="product">
+                      <img src="https://images.unsplash.com/photo-1535912579530-bde3c5e5a21a" alt="Flower Item 3">
+                      <h2>Sunflowers</h2>
+                      <p class="price">$20</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+          
+    - name: Open firewall for HTTP and HTTPS
+      firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: yes
+      loop:
+        - http
+        - https
+
+    - name: Reload firewalld to apply changes
+      command: firewall-cmd --reload

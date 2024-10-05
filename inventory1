@@ -1,0 +1,2 @@
+[webservers]
+192.168.217.133 ansible_user=yasmin
